@@ -1,0 +1,7 @@
+{
+    "name": "eta-lib",
+    "version": "0.0.1",
+    "globalDependencies": {
+        "node": "registry:env/node#4.0.0+20160507210304"
+    }
+}

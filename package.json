@@ -1,0 +1,15 @@
+{
+    "name": "eta-exec",
+    "version": "0.0.1",
+    "description": "Execution logic for Eta.",
+    "homepage": "http://gitlab.com/crossroads/eta-exec/",
+    "license": "UNLICENSED",
+    "author": {
+        "name": "Alex Hicks",
+        "email": "alex@alexhicks.net",
+        "url": "http://alexhicks.net"
+    },
+    "contributors": [],
+    "main": "./server.js",
+    "private": true
+}
