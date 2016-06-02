@@ -1,15 +1,29 @@
 {
-    "name": "eta-exec",
-    "version": "0.0.1",
-    "description": "Execution logic for Eta.",
-    "homepage": "http://gitlab.com/crossroads/eta-exec/",
-    "license": "UNLICENSED",
-    "author": {
-        "name": "Alex Hicks",
-        "email": "alex@alexhicks.net",
-        "url": "http://alexhicks.net"
-    },
-    "contributors": [],
-    "main": "./server.js",
-    "private": true
+  "name": "eta-exec",
+  "version": "0.0.1",
+  "description": "Execution logic for Eta.",
+  "homepage": "http://gitlab.com/crossroads/eta-exec/",
+  "license": "UNLICENSED",
+  "author": {
+    "name": "Alex Hicks",
+    "email": "alex@alexhicks.net",
+    "url": "http://alexhicks.net"
+  },
+  "contributors": [],
+  "main": "./server.js",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "connect-session-knex": "^1.0.23",
+    "es6-shim": "^0.35.1",
+    "express": "^4.13.4",
+    "express-session": "^1.13.0",
+    "knex": "^0.11.5",
+    "mime": "^1.3.4",
+    "multer": "^1.1.0",
+    "mysql": "^2.10.2",
+    "pug": "^2.0.0-alpha8",
+    "recursive-readdir": "^2.0.0",
+    "stack-trace": "0.0.9"
+  }
 }

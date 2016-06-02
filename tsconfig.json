@@ -2,21 +2,15 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "moduleResolution": "classic",
-        "isolatedModules": false,
-        "jsx": "react",
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "declaration": false,
+        "moduleResolution": "node",
+        "noFallthroughCasesInSwitch": true,
         "noImplicitAny": true,
-        "removeComments": true,
-        "noLib": false,
-        "preserveConstEnums": true,
-        "suppressImplicitAnyIndexErrors": false
+        "noImplicitReturns": true,
+        "preserveConstEnums": true
     },
     "compileOnSave": true,
     "buildOnSave": false,
-    "exclude": ["node_modules", "typings"],
+    "exclude": ["node_modules", "typings", "node_modules/eta-lib/typings"],
     "atom": {
         "rewriteTsconfig": false
     }
