@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Execution logic for Eta.",
   "homepage": "http://github.com/crossroads-education/eta-exec/",
+  "repository": "git://github.com:crossroads-education/eta-exec.git",
   "license": "MIT",
   "author": {
     "name": "Alex Hicks",
