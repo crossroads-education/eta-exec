@@ -35,10 +35,11 @@ export class RequestHandler {
     public constructor(moduleName : string, config : eta.ModuleConfiguration) {
         this.config = config;
         this.moduleName = moduleName;
-        this.root = site.root + "node_modules/" + this.moduleName + "/";
+        this.root = site.root + site.server.moduleDir + "/" + this.moduleName + "/";
         this.validateConfig();
         this.staticDirs = fs.readdirSync(this.config.dirs.static);
         this.defaultEnv = JSON.parse(fs.readFileSync(site.root + "lib/defaultEnv.json").toString());
+        this.setupModels();
     }
 
     /**
@@ -147,7 +148,7 @@ export class RequestHandler {
                 let tokens : string[] = filename.substring(this.config.dirs.models.length - 1).split("/");
                 tokens.splice(-1, 1); // remove the actual filename, since that isn't important (structure is /{path}/whatever.ts)
 
-                let path : string = tokens.join("/"); // path relative to webserver root
+                let path : string = "/" + tokens.join("/"); // path relative to module root
 
                 // only if .endsWith("js"), but there's nothing else yet
                 let handler : any = require(filename); // we don't really know what else might be exported along with Model
