@@ -5,6 +5,7 @@ import * as express from "express";
 import * as fs from "fs";
 import * as mime from "mime";
 import * as recursiveReaddir from "recursive-readdir";
+import * as urllib from "url";
 
 export class RequestHandler {
     /**
@@ -29,12 +30,15 @@ export class RequestHandler {
 
     public staticDirs : string[];
 
+    public defaultEnv : {[key : string] : any};
+
     public constructor(moduleName : string, config : eta.ModuleConfiguration) {
         this.config = config;
         this.moduleName = moduleName;
         this.root = site.root + "node_modules/" + this.moduleName + "/";
         this.validateConfig();
         this.staticDirs = fs.readdirSync(this.config.dirs.static);
+        this.defaultEnv = JSON.parse(fs.readFileSync(site.root + "lib/defaultEnv.json").toString());
     }
 
     /**
@@ -57,7 +61,6 @@ export class RequestHandler {
             if (path.endsWith("/")) {
                 path += "index"; // so we can interpret it properly
             }
-            site.logger.trace(this.config.dirs.views + path + ".pug");
             eta.fs.exists(this.config.dirs.views + path + ".pug", (exists : boolean) => {
                 if (!exists) {
                     site.logger.trace("View for " + req.path + " does not exist.");
@@ -92,7 +95,15 @@ export class RequestHandler {
     Renders a view (and possibly a model) once the view is known to exist.
     */
     private renderPage(req : express.Request, res : express.Response, path : string) : void {
-        let env : {[key : string] : any} = {};
+        let env : {[key : string] : any} = {
+            "baseurl": "//" + req.get("host") + this.config.path
+        };
+        for (let i in this.defaultEnv) {
+            env[i] = this.defaultEnv[i];
+        }
+        if (fs.existsSync(this.config.dirs.static + "js" + path + ".js")) {
+            env["mainjs"] = path.substring(1);
+        }
         if (this.models[path]) {
             this.models[path].render(req, res, (modelEnv : {[key : string] : any}) => {
                 for (let i in modelEnv) {
