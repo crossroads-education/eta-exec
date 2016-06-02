@@ -1,1 +1,5 @@
+/config/
+/logs/
 /node_modules/
+/typings/
+*.js
