@@ -64,7 +64,7 @@ export class RequestHandler {
             }
             eta.fs.exists(this.config.dirs.views + path + ".pug", (exists : boolean) => {
                 if (!exists) {
-                    site.logger.trace("View for " + req.path + " does not exist.");
+                    eta.logger.trace("View for " + req.path + " does not exist.");
                     site.server.renderError(eta.http.NotFound, req, res);
                     return;
                 }
@@ -76,13 +76,13 @@ export class RequestHandler {
     private serveStatic(req : express.Request, res : express.Response, path : string) : void {
         eta.fs.exists(this.config.dirs.static + path, (exists : boolean) => {
             if (!exists) {
-                site.logger.trace("Static file " + req.path + " does not exist.");
+                eta.logger.trace("Static file " + req.path + " does not exist.");
                 site.server.renderError(eta.http.NotFound, req, res);
                 return;
             }
             fs.readFile(this.config.dirs.static + path, (err : NodeJS.ErrnoException, data : Buffer) => {
                 if (err) {
-                    site.logger.warn("Error reading file from " + req.path);
+                    eta.logger.warn("Error reading file from " + req.path);
                     site.server.renderError(eta.http.InternalError, req, res);
                     return;
                 }
@@ -123,8 +123,8 @@ export class RequestHandler {
     private onRenderPage(res : express.Response, env : {[key : string] : any}, path : string) : void {
         res.render(this.config.dirs.views + path, env, (err : Error, html : string) => {
             if (err) {
-                site.logger.warn(`Rendering ${path} failed:`);
-                site.logger.warn(err.message);
+                eta.logger.warn(`Rendering ${path} failed:`);
+                eta.logger.warn(err.message);
                 return;
             }
             res.send(html);

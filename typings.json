@@ -8,7 +8,6 @@
         "express-session": "registry:dt/express-session#0.0.0+20160331200931",
         "knex": "registry:dt/knex#0.0.0+20160526133810",
         "multer": "registry:dt/multer#0.0.0+20160317120654",
-        "mysql": "registry:dt/mysql#0.0.0+20160316155526",
         "recursive-readdir": "registry:dt/recursive-readdir#1.2.1+20160317120654"
     }
 }

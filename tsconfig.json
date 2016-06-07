@@ -10,7 +10,7 @@
     },
     "compileOnSave": true,
     "buildOnSave": false,
-    "exclude": ["node_modules", "typings", "node_modules/eta-lib/typings"],
+    "exclude": ["node_modules", "typings", "node_modules/eta-lib/typings", "modules"],
     "atom": {
         "rewriteTsconfig": false
     }

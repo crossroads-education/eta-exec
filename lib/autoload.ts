@@ -11,7 +11,6 @@ import {Configuration} from "./interfaces/Configuration";
 
 // *** variable exports ***
 export let config : Configuration = JSON.parse(fs.readFileSync("./config/main.json").toString());
-export let logger : eta.Logger = new eta.Logger(process.cwd());
 export let root : string = process.cwd().replace(/\\/g, "/") + "/"; // root of this repository
 
 // *** class exports ***

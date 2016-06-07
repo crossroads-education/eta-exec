@@ -7,9 +7,7 @@ interface DatabaseConnectionInfo {
 }
 
 export interface Configuration {
-    db : {
-        session : DatabaseConnectionInfo;
-    };
+    db : DatabaseConnectionInfo;
     dev : {
         use : boolean;
     };
