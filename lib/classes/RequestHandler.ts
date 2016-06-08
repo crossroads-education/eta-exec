@@ -64,8 +64,8 @@ export class RequestHandler {
             }
             eta.fs.exists(this.config.dirs.views + path + ".pug", (exists : boolean) => {
                 if (!exists) {
-                    eta.logger.trace("View for " + req.path + " does not exist.");
-                    site.server.renderError(eta.http.NotFound, req, res);
+                    eta.logger.trace("View for " + req.path + " (handler " + this.moduleName + ") does not exist.");
+                    this.config.path == "/" ? next() : site.server.renderError(eta.http.NotFound, req, res);
                     return;
                 }
                 this.renderPage(req, res, path);
@@ -138,6 +138,11 @@ export class RequestHandler {
         let ignoredGlobs : string[] = ["*.ts"];
         // each file is a relative path from the site root (technically process.cwd(), which should be site root)
         recursiveReaddir(this.config.dirs.models, ignoredGlobs, (err : NodeJS.ErrnoException, files : string[]) => {
+            if (err) {
+                eta.logger.warn("Could not read " + this.config.dirs.models + " recursively.");
+                eta.logger.trace(err.message);
+                return;
+            }
             for (let i : number = 0; i < files.length; i++) {
                 if (!files[i].endsWith(".js")) {
                     return;
