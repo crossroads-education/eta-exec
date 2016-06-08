@@ -16,7 +16,7 @@
     "body-parser": "^1.15.1",
     "connect-session-knex": "^1.0.23",
     "es6-shim": "^0.35.1",
-    "eta-lib": "git+ssh://git@github.com/crossroads-education/eta-lib.git",
+    "eta-lib": "git+https://git@github.com/crossroads-education/eta-lib.git",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "knex": "^0.11.5",
