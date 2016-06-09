@@ -101,16 +101,15 @@ export class RequestHandler {
     */
     private renderPage(req : express.Request, res : express.Response, path : string) : void {
         let env : {[key : string] : any} = {
-            "baseurl": "//" + req.get("host") + this.config.path,
-            "css": []
+            "baseurl": "//" + req.get("host") + this.config.path
         };
         for (let i in this.defaultEnv) {
-            env[i] = this.defaultEnv[i];
+            env[i] = eta.object.copy(this.defaultEnv[i]);
         }
-        if (fs.existsSync(this.config.dirs.static + "js" + path + ".js")) {
+        if (eta.fs.existsSync(this.config.dirs.static + "js" + path + ".js")) {
             env["mainjs"] = this.config.path + "js" + path + ".js";
         }
-        if (fs.existsSync(this.config.dirs.static + "css" + path + ".css")) {
+        if (eta.fs.existsSync(this.config.dirs.static + "css" + path + ".css")) {
             env["css"].push(this.config.path + "css" + path + ".css");
         }
         if (this.models[path]) {
