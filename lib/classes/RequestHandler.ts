@@ -64,8 +64,12 @@ export class RequestHandler {
             }
             eta.fs.exists(this.config.dirs.views + path + ".pug", (exists : boolean) => {
                 if (!exists) {
-                    eta.logger.trace("View for " + req.path + " (handler " + this.moduleName + ") does not exist.");
-                    this.config.path == "/" ? next() : site.server.renderError(eta.http.NotFound, req, res);
+                    if (this.config.path == "/") { // it won't give other modules a chance to handle the request
+                        next();
+                    } else {
+                        eta.logger.trace("View for " + req.path + " (handler " + this.moduleName + ") does not exist.");
+                        site.server.renderError(eta.http.NotFound, req, res);
+                    }
                     return;
                 }
                 this.renderPage(req, res, path);
@@ -97,13 +101,17 @@ export class RequestHandler {
     */
     private renderPage(req : express.Request, res : express.Response, path : string) : void {
         let env : {[key : string] : any} = {
-            "baseurl": "//" + req.get("host") + this.config.path
+            "baseurl": "//" + req.get("host") + this.config.path,
+            "css": []
         };
         for (let i in this.defaultEnv) {
             env[i] = this.defaultEnv[i];
         }
         if (fs.existsSync(this.config.dirs.static + "js" + path + ".js")) {
-            env["mainjs"] = path.substring(1);
+            env["mainjs"] = this.config.path + "js" + path + ".js";
+        }
+        if (fs.existsSync(this.config.dirs.static + "css" + path + ".css")) {
+            env["css"].push(this.config.path + "css" + path + ".css");
         }
         if (this.models[path]) {
             this.models[path].render(req, res, (modelEnv : {[key : string] : any}) => {
