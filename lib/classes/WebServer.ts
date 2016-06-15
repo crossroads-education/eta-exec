@@ -111,6 +111,13 @@ export class WebServer {
             } else {
                 eta.logger.info("Database connected.");
             }
+            for (let name in eta) {
+                let obj : any = (<any>eta)[name];
+                if (obj.init) { // assuming that .init() should be called daily + on start
+                    eta.logger.trace("Initializing helper " + name);
+                    obj.init();
+                }
+            }
         });
     }
 }
