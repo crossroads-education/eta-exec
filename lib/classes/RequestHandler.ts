@@ -130,17 +130,20 @@ export class RequestHandler {
         if (this.models[path]) {
             this.models[path].render(req, res, (modelEnv : {[key : string] : any}) => {
                 env = this.addToEnv(env, modelEnv);
-                this.onRenderPage(res, env, path);
+                this.onRenderPage(req, res, env, path);
             });
         } else {
-            this.onRenderPage(res, env, path);
+            this.onRenderPage(req, res, env, path);
         }
     }
 
     /**
     Needs to be separate so that scope is preserved.
     */
-    private onRenderPage(res : express.Response, env : {[key : string] : any}, path : string) : void {
+    private onRenderPage(req : express.Request, res : express.Response, env : {[key : string] : any}, path : string) : void {
+        if (!env["useRedirect"]) {
+            req.session["returnTo"] = req.path;
+        }
         res.render(this.config.dirs.views + path, env, (err : Error, html : string) => {
             if (err) {
                 eta.logger.warn(`Rendering ${path} failed:`);
