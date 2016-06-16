@@ -96,6 +96,17 @@ export class RequestHandler {
         });
     }
 
+    private addToEnv(env : {[key : string] : any}, newEnv : {[key : string] : any}) : {[key : string] : any} {
+        for (let i in newEnv) {
+            if (newEnv[i] instanceof Array && env[i] instanceof Array) {
+                env[i] = env[i].concat(newEnv[i]);
+            } else {
+                env[i] = newEnv[i];
+            }
+        }
+        return env;
+    }
+
     /**
     Renders a view (and possibly a model) once the view is known to exist.
     */
@@ -112,11 +123,13 @@ export class RequestHandler {
         if (eta.fs.existsSync(this.config.dirs.static + "css" + path + ".css")) {
             env["css"].push(this.config.path + "css" + path + ".css");
         }
+        let jsonFile : string = this.config.dirs.models + path + "/" + path.split("/").splice(-1, 1) + ".json";
+        if (eta.fs.existsSync(jsonFile)) {
+            env = this.addToEnv(env, JSON.parse(fs.readFileSync(jsonFile).toString()));
+        }
         if (this.models[path]) {
             this.models[path].render(req, res, (modelEnv : {[key : string] : any}) => {
-                for (let i in modelEnv) {
-                    env[i] = modelEnv[i];
-                }
+                env = this.addToEnv(env, modelEnv);
                 this.onRenderPage(res, env, path);
             });
         } else {
