@@ -91,7 +91,7 @@ export class RequestHandler {
                     return;
                 }
                 res.set("Content-Type", mime.lookup(req.path));
-                res.send(data.toString());
+                res.send(data);
             });
         });
     }
