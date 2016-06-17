@@ -102,6 +102,10 @@ export class WebServer {
         // have to do some hacky stuff to get this working
         (<any>eta).logger = new eta.Logger(process.cwd());
         (<any>eta).db = mysql.createConnection(site.config.db);
+        (<any>eta).knex = knex({
+            "client": "mysql",
+            "connection": site.config.db
+        });
         eta.db.on("error", (err : eta.DBError) => {
             eta.logger.warn("Database error: " + err.code);
         });
