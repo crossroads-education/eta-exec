@@ -5,7 +5,6 @@
         "bluebird": "registry:dt/bluebird#2.0.0+20160319051630",
         "body-parser": "registry:dt/body-parser#0.0.0+20160317120654",
         "connect": "registry:dt/connect#3.4.0+20160317120654",
-        "knex": "registry:dt/knex#0.0.0+20160526133810",
         "multer": "registry:dt/multer#0.0.0+20160317120654",
         "recursive-readdir": "registry:dt/recursive-readdir#1.2.1+20160317120654"
     }
