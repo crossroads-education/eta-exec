@@ -176,7 +176,7 @@ export class RequestHandler {
             }
             for (let i : number = 0; i < files.length; i++) {
                 if (!files[i].endsWith(".js")) {
-                    return;
+                    continue;
                 }
                 let filename : string = files[i].replace(/\\/g, "/");
 
