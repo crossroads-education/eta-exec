@@ -64,6 +64,10 @@ export class RequestHandler {
             }
             eta.fs.exists(this.config.dirs.views + path + ".pug", (exists : boolean) => {
                 if (!exists) {
+                    if (path.startsWith("/post/")) {
+                        this.renderPage(req, res, path);
+                        return;
+                    }
                     if (this.config.path == "/") { // it won't give other modules a chance to handle the request
                         next();
                     } else {
@@ -130,6 +134,10 @@ export class RequestHandler {
         if (this.models[path]) {
             this.models[path].render(req, res, (modelEnv : {[key : string] : any}) => {
                 env = this.addToEnv(env, modelEnv);
+                if (path.startsWith("/post/")) {
+                    res.send("");
+                    return;
+                }
                 this.onRenderPage(req, res, env, path);
             });
         } else {
