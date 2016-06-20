@@ -187,9 +187,13 @@ export class RequestHandler {
                 let path : string = "/" + tokens.join("/"); // path relative to module root
 
                 // only if .endsWith("js"), but there's nothing else yet
-                let handler : any = require(filename); // we don't really know what else might be exported along with Model
-                let model : eta.Model = new handler.Model(); // the file must export Model implements eta.Model
-                this.models[path] = model;
+                try {
+                    let handler : any = require(filename); // we don't really know what else might be exported along with Model
+                    let model : eta.Model = new handler.Model(); // the file must export Model implements eta.Model
+                    this.models[path] = model;
+                } catch (ex) {
+                    eta.logger.warn("Could not load model for " + path);
+                }
             }
         });
     }
