@@ -5,6 +5,9 @@ pull_compile() {
     git pull
     typings i
     tsc
+    cd "static/js"
+    tsc
+    cd "../.."
 }
 
 # Lib
