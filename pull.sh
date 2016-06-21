@@ -5,7 +5,7 @@ pull_compile() {
     git pull
     typings i
     tsc
-    if [-d "./static/js"]; then
+    if [ -d "./static/js" ]; then
         cd "static/js"
         tsc
         cd "../.."
