@@ -5,6 +5,7 @@ import * as express from "express";
 import * as fs from "fs";
 import * as knex from "knex";
 import * as mysql from "mysql";
+import * as nodemailer from "nodemailer";
 
 // express middleware imports
 import * as bodyParser from "body-parser";
@@ -106,6 +107,11 @@ export class WebServer {
             "client": "mysql",
             "connection": site.config.db
         });
+        (<any>eta).mail = nodemailer.createTransport({
+            host: "mail-relay.iu.edu",
+            port: 25,
+            secure: false
+        })
         eta.db.on("error", (err : eta.DBError) => {
             eta.logger.warn("Database error: " + err.code);
         });
