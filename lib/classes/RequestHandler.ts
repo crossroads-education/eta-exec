@@ -55,7 +55,7 @@ export class RequestHandler {
             }
             for (let i : number = 0; i < this.staticDirs.length; i++) {
                 if (path.startsWith("/" + this.staticDirs[i] + "/")) {
-                    this.serveStatic(req, res, path);
+                    this.serveStatic(req, res, path, next);
                     return;
                 }
             }
@@ -81,9 +81,13 @@ export class RequestHandler {
         };
     }
 
-    private serveStatic(req : express.Request, res : express.Response, path : string) : void {
+    private serveStatic(req : express.Request, res : express.Response, path : string, next : Function) : void {
         eta.fs.exists(this.config.dirs.static + path, (exists : boolean) => {
             if (!exists) {
+                if (this.config.path == "/") {
+                    next();
+                    return;
+                }
                 eta.logger.trace("Static file " + req.path + " does not exist.");
                 site.server.renderError(eta.http.NotFound, req, res);
                 return;
@@ -203,7 +207,7 @@ export class RequestHandler {
                     let model : eta.Model = new handler.Model(); // the file must export Model implements eta.Model
                     this.models[path] = model;
                 } catch (ex) {
-                    eta.logger.warn("Could not load model for " + path);
+                    eta.logger.warn("Could not load model for " + path + ": " + ex.message);
                 }
             }
         });
