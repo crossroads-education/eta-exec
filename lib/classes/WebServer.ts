@@ -13,7 +13,7 @@ import * as multer from "multer";
 import * as session from "express-session";
 
 // store session data in a DB
-let KnexSessionStore : any = require("connect-session-knex")(session);
+let MySQLStore : any = require("express-mysql-session")(session);
 
 export class WebServer {
     public static app : express.Application;
@@ -21,6 +21,7 @@ export class WebServer {
     public static moduleDir : string;
 
     public static init(moduleDir : string) : void {
+        (<any>eta).config = JSON.parse(fs.readFileSync("./config/main.json").toString());
         WebServer.app = express();
         WebServer.moduleDir = moduleDir + "/";
         WebServer.configure();
@@ -29,8 +30,8 @@ export class WebServer {
     }
 
     public static start() : void {
-        WebServer.app.listen(site.config.http.port, () => {
-            eta.logger.info("Server started on port " + site.config.http.port);
+        WebServer.app.listen(eta.config.http.port, () => {
+            eta.logger.info("Server started on port " + eta.config.http.port);
         });
     }
 
@@ -65,7 +66,7 @@ export class WebServer {
         // extensions and parsing definition for express
         WebServer.app.set("view engine", "pug");
 
-        if (site.config.dev.use) {
+        if (eta.config.dev.use) {
             WebServer.app.locals.pretty = true; // render Pug as readable HTML
             WebServer.app.disable("view cache"); // reload Pug views on render
         }
@@ -74,18 +75,12 @@ export class WebServer {
     }
 
     private static setupMiddleware() : void {
-        // sessions
-        let sessionDB : knex = knex({
-            "client": "mysql",
-            "connection": site.config.db
-        });
+        (<any>eta).db = mysql.createConnection(eta.config.db);
         WebServer.app.use(session({
-            "secret": site.config.http.secret,
-            "resave": false,
+            "secret": eta.config.http.secret,
+            "resave": true,
             "saveUninitialized": false,
-            "store": new KnexSessionStore({
-                "knex": sessionDB
-            })
+            "store": new MySQLStore({}, eta.db)
         }));
 
         // file uploading
@@ -102,10 +97,9 @@ export class WebServer {
     private static initEtaLib() {
         // have to do some hacky stuff to get this working
         (<any>eta).logger = new eta.Logger(process.cwd());
-        (<any>eta).db = mysql.createConnection(site.config.db);
         (<any>eta).knex = knex({
             "client": "mysql",
-            "connection": site.config.db
+            "connection": eta.config.db
         });
         (<any>eta).mail = nodemailer.createTransport({
             host: "mail-relay.iu.edu",
