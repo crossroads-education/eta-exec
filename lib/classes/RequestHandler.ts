@@ -116,7 +116,7 @@ export class RequestHandler {
     */
     private renderPage(req : express.Request, res : express.Response, path : string) : void {
         let env : {[key : string] : any} = {
-            "baseurl": "//" + req.get("host") + this.config.path
+            "baseurl": req.protocol + "://" + req.get("host") + this.config.path
         };
         for (let i in this.defaultEnv) {
             env[i] = eta.object.copy(this.defaultEnv[i]);
@@ -131,7 +131,18 @@ export class RequestHandler {
         if (eta.fs.existsSync(jsonFile)) {
             env = this.addToEnv(env, JSON.parse(fs.readFileSync(jsonFile).toString()));
         }
+        if (env["requiresLogin"] && !req.session["userid"]) {
+            eta.logger.trace("Forcing login from " + req.path);
+            res.redirect("/login");
+            return;
+        }
         if (this.models[path]) {
+            if (this.models[path].setParams) {
+                this.models[path].setParams({
+                    "baseUrl": env["baseurl"],
+                    "fullUrl": env["baseurl"] + path.substring(1)
+                });
+            }
             this.models[path].render(req, res, (modelEnv : {[key : string] : any}) => {
                 env = this.addToEnv(env, modelEnv);
                 if (path.startsWith("/post/")) {
