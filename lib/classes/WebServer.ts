@@ -101,11 +101,12 @@ export class WebServer {
             "client": "mysql",
             "connection": eta.config.db
         });
-        (<any>eta).mail = nodemailer.createTransport({
-            host: "mail-relay.iu.edu",
-            port: 25,
-            secure: false
-        })
+        let smtpString : string = "smtp";
+        if (eta.config.mail.secure) {
+            smtpString += "s";
+        }
+        smtpString += "://" + eta.config.mail.host + ":" + eta.config.mail.port;
+        (<any>eta).mail = nodemailer.createTransport(smtpString);
         eta.db.on("error", (err : eta.DBError) => {
             eta.logger.warn("Database error: " + err.code);
         });
