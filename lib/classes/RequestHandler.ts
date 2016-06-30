@@ -135,6 +135,9 @@ export class RequestHandler {
         if (eta.fs.existsSync(jsonFile)) {
             env = this.addToEnv(env, JSON.parse(fs.readFileSync(jsonFile).toString()));
         }
+        if (!env["useRedirect"]) {
+            req.session["returnTo"] = req.path;
+        }
         if (env["requiresLogin"] && !req.session["userid"]) {
             eta.logger.trace("Forcing login from " + req.path);
             res.redirect("/login");
@@ -164,9 +167,6 @@ export class RequestHandler {
     Needs to be separate so that scope is preserved.
     */
     private onRenderPage(req : express.Request, res : express.Response, env : {[key : string] : any}, path : string) : void {
-        if (!env["useRedirect"]) {
-            req.session["returnTo"] = req.path;
-        }
         res.render(this.config.dirs.views + path, env, (err : Error, html : string) => {
             if (err) {
                 eta.logger.warn(`Rendering ${path} failed:`);
