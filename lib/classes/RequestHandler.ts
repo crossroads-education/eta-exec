@@ -150,7 +150,7 @@ export class RequestHandler {
             this.models[path].render(req, res, (modelEnv : {[key : string] : any}) => {
                 env = this.addToEnv(env, modelEnv);
                 if (path.startsWith("/post/")) {
-                    res.send(env["raw"] ? env["raw"] : "");
+                    res.send(env["raw"] ? env["raw"].toString() : "");
                     return;
                 }
                 this.onRenderPage(req, res, env, path);
