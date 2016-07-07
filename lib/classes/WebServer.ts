@@ -2,6 +2,7 @@ import * as site from "../autoload";
 
 import * as eta from "eta-lib";
 import * as express from "express";
+import * as https from "https";
 import * as fs from "fs";
 import * as knex from "knex";
 import * as mysql from "mysql";
@@ -30,8 +31,16 @@ export class WebServer {
     }
 
     public static start() : void {
-        WebServer.app.listen(eta.config.http.port, () => {
-            eta.logger.info("Server started on port " + eta.config.http.port);
+        if (eta.config.http.ssl.use) {
+            https.createServer({
+                "key": fs.readFileSync(eta.config.http.ssl.key),
+                "cert": fs.readFileSync(eta.config.http.ssl.cert)
+            }, WebServer.app).listen(eta.config.http.ssl.port, function() {
+                eta.logger.info("HTTPS server started on port " + eta.config.http.ssl.port)
+            });
+        }
+        WebServer.app.listen(eta.config.http.port, function() {
+            eta.logger.info("HTTP server started on port " + eta.config.http.port);
         });
     }
 
