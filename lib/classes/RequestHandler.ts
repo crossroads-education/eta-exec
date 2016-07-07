@@ -143,6 +143,17 @@ export class RequestHandler {
             res.redirect("/login");
             return;
         }
+        if (env["allowedPositions"]) {
+            let isAllowed : boolean = false;
+            for (let i : number = 0; i < req.session["positions"].length; i++) {
+                if (env["allowedPositions"].indexOf(req.session["positions"][i]) !== -1) {
+                    isAllowed = true;
+                }
+            }
+            if (!isAllowed) {
+                site.server.renderError(eta.http.Forbidden, req, res);
+            }
+        }
         if (this.models[path]) {
             if (this.models[path].setParams) {
                 this.models[path].setParams({
@@ -152,6 +163,10 @@ export class RequestHandler {
             }
             this.models[path].render(req, res, (modelEnv : {[key : string] : any}) => {
                 env = this.addToEnv(env, modelEnv);
+                if (env["errcode"]) {
+                    site.server.renderError(env["errcode"], req, res);
+                    return;
+                }
                 if (path.startsWith("/post/")) {
                     res.send(env["raw"] ? env["raw"].toString() : "");
                     return;
