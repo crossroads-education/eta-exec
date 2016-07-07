@@ -168,7 +168,14 @@ export class RequestHandler {
                     return;
                 }
                 if (path.startsWith("/post/")) {
-                    res.send(env["raw"] ? env["raw"].toString() : "");
+                    let data : string | Buffer = "";
+                    if (env["raw"]) {
+                        data = env["raw"];
+                        if (!(<any>data instanceof Buffer)) {
+                            data = data.toString();
+                        }
+                    }
+                    res.send(data);
                     return;
                 }
                 this.onRenderPage(req, res, env, path);
@@ -186,6 +193,10 @@ export class RequestHandler {
             if (err) {
                 eta.logger.warn(`Rendering ${path} failed:`);
                 eta.logger.warn(err.message);
+                return;
+            }
+            if (this.models[path].renderAfter) {
+                this.models[path].renderAfter(html, res);
                 return;
             }
             res.send(html);
