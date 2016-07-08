@@ -38,7 +38,7 @@ export class RequestHandler {
         this.root = site.root + site.server.moduleDir + "/" + this.moduleName + "/";
         this.validateConfig();
         this.staticDirs = fs.readdirSync(this.config.dirs.static);
-        this.defaultEnv = JSON.parse(fs.readFileSync(site.root + "lib/defaultEnv.json").toString());
+        this.setupDefaultEnv();
         this.setupModels();
     }
 
@@ -102,6 +102,12 @@ export class RequestHandler {
                 res.send(data);
             });
         });
+    }
+
+    private setupDefaultEnv() {
+        this.defaultEnv = JSON.parse(fs.readFileSync(site.root + "lib/defaultEnv.json").toString());
+        let customEnvFile : string = this.config.dirs.models + "env.json";
+        this.defaultEnv = this.addToEnv(this.defaultEnv, JSON.parse(customEnvFile));
     }
 
     private addToEnv(env : {[key : string] : any}, newEnv : {[key : string] : any}) : {[key : string] : any} {
