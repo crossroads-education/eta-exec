@@ -107,7 +107,9 @@ export class RequestHandler {
     private setupDefaultEnv() {
         this.defaultEnv = JSON.parse(fs.readFileSync(site.root + "lib/defaultEnv.json").toString());
         let customEnvFile : string = this.config.dirs.models + "env.json";
-        this.defaultEnv = this.addToEnv(this.defaultEnv, JSON.parse(customEnvFile));
+        if (eta.fs.existsSync(customEnvFile)) {
+            this.defaultEnv = this.addToEnv(this.defaultEnv, JSON.parse(fs.readFileSync(customEnvFile).toString()));
+        }
     }
 
     private addToEnv(env : {[key : string] : any}, newEnv : {[key : string] : any}) : {[key : string] : any} {
@@ -201,7 +203,7 @@ export class RequestHandler {
                 eta.logger.warn(err.message);
                 return;
             }
-            if (this.models[path].renderAfter) {
+            if (this.models[path] && this.models[path].renderAfter) {
                 this.models[path].renderAfter(html, res);
                 return;
             }
