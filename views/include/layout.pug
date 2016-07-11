@@ -3,10 +3,11 @@ html
     head
         include ./header.pug
         link(href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css", rel="stylesheet", type="text/css")
-        link(href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css")
+        link(href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css", rel="stylesheet")
         each url in css
             link(href=url, rel="stylesheet", type="text/css")
     body
         block navbar
         block body
+        block footer
         include ./requirejs.pug
