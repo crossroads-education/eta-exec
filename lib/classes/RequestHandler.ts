@@ -65,6 +65,10 @@ export class RequestHandler {
             eta.fs.exists(this.config.dirs.views + path + ".pug", (exists : boolean) => {
                 if (!exists) {
                     if (path.startsWith("/post/")) {
+                        if (!this.models[path]) {
+                            site.server.renderError(eta.http.NotFound, req, res);
+                            return;
+                        }
                         this.renderPage(req, res, path);
                         return;
                     }
