@@ -1,0 +1,38 @@
+extends ./layout.pug
+
+block header
+    //- From https://styleguide.iu.edu/developer-tools/css-js.html
+    script(src="https://assets.iu.edu/web/1.5/libs/modernizr.min.js")
+    script(src="https://assets.iu.edu/web/js/global.dev.js")
+    script.
+        var IUComm = window.IUComm || {};
+        IUComm.init && IUComm.init();
+
+block navbar
+    //- From https://github.iu.edu/iucomm/iu-brand/blob/master/dist/3.x/header-iupui.html
+    div#branding-bar(itemscope="itemscope", itemtype="http://schema.org/CollegeOrUniversity", role="complementary", aria-labelledby="campus-name")
+        div.row.pad
+            img(src="https://assets.iu.edu/brand/2.x/trident-large.png", alt="IU")
+            p#iu-campus
+                a(href="https://www.iupui.edu", title="Indiana University&#8211;Purdue University Indianapolis")
+                    span.show-on-desktop#campus-name(itemprop="name") Indiana University&#8211;Purdue University Indianapolis
+                    span.show-on-tablet(itemprop="name") Indiana University&#8211;Purdue University Indianapolis
+                    span.show-on-mobile(itemprop="name") IUPUI
+    block navbar
+
+block footer
+    footer#footer(role="contentinfo", itemscope="itemscope", itemtype="http://schema.org/CollegeOrUniversity")
+        div.row.pad
+            p.tagline
+                | Fulfilling 
+                span the
+                |  Promise
+            img(src="https://assets.iu.edu/brand/2.x/trident-small.png", alt="Indiana University")
+            p.copyright
+                a(href="http://www.iu.edu/copyright/index.shtml", title="Copyright") Copyright
+                |  &#169; #{new Date().getYear() + 1900} 
+                span.line-break The Trustees of 
+                    a(href="http://www.iu.edu/", title="Indiana University", itemprop="url")
+                        span(itemprop="name") Indiana University
+            p.privacy
+                a#privacy-policy-link(href="/privacy", title="Privacy Policy") Privacy Notice
