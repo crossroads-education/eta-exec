@@ -132,7 +132,8 @@ export class RequestHandler {
     */
     private renderPage(req : express.Request, res : express.Response, path : string) : void {
         let env : {[key : string] : any} = {
-            "baseurl": req.protocol + "://" + req.get("host") + this.config.path
+            "baseurl": req.protocol + "://" + req.get("host") + this.config.path,
+            "models": []
         };
         for (let i in this.defaultEnv) {
             env[i] = eta.object.copy(this.defaultEnv[i]);
@@ -167,14 +168,19 @@ export class RequestHandler {
             }
         }
         if (this.models[path]) {
-            if (this.models[path].setParams) {
-                this.models[path].setParams({
-                    "baseUrl": env["baseurl"],
-                    "fullUrl": env["baseurl"] + path.substring(1)
-                });
-            }
-            this.models[path].render(req, res, (modelEnv : {[key : string] : any}) => {
-                env = this.addToEnv(env, modelEnv);
+            env["models"].push(path);
+        }
+        if (env["models"].length == 0) {
+            this.onRenderPage(req, res, env, path);
+            return;
+        }
+
+        function renderModels() : void {
+            let modelEnvs : {[key : string] : any}[] = [];
+            function onRenderComplete() {
+                for (let i : number = 0; i < modelEnvs.length; i++) {
+                    env = this.addToEnv(env, modelEnvs[i]);
+                }
                 if (env["errcode"]) {
                     site.server.renderError(env["errcode"], req, res);
                     return;
@@ -191,9 +197,44 @@ export class RequestHandler {
                     return;
                 }
                 this.onRenderPage(req, res, env, path);
+            }
+            for (let i : number = 0; i < env["models"].length; i++) {
+                let modelPath : string = env["models"][i];
+                if (!this.models[modelPath]) {
+                    eta.logger.warn("Model " + modelPath + " not found for page " + path);
+                    continue;
+                }
+                if (this.models[modelPath].setParams) {
+                    this.models[modelPath].setParams({
+                        "baseUrl": env["baseurl"],
+                        "fullUrl": env["baseurl"] + path.substring(1)
+                    });
+                }
+                this.models[modelPath].render(req, res, (modelEnv : {[key : string] : any}) => {
+                    modelEnvs[i] = modelEnv;
+                    if (modelEnvs.length == env["models"].length) {
+                        for (let k : number = 0; k < modelEnvs.length; k++) {
+                            if (modelEnvs[k] == undefined) {
+                                return; // not actually done
+                            }
+                        }
+                        onRenderComplete.apply(this);
+                    }
+                });
+            }
+        }
+
+        if (env["usePermissions"] && req.session["userid"]) {
+            eta.permission.getUser(req.session["userid"], (user : eta.PermissionUser) => {
+                if (!user) {
+                    site.server.renderError(eta.http.InternalError, req, res);
+                    return;
+                }
+                req.session["permissions"] = user;
+                renderModels.apply(this);
             });
         } else {
-            this.onRenderPage(req, res, env, path);
+            renderModels.apply(this);
         }
     }
 
