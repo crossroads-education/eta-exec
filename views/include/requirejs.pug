@@ -1,7 +1,12 @@
 script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js")
 script(src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js")
 script(src="/js/common.js")
+-
+    var bootstrap = "\"bootstrap\", ";
+    if (noExternalCSS) {
+        bootstrap = "";
+    }
 script.
     require(["jquery", "jquery-ui", "es6-shim"], function() {
-        require(["bootstrap", "#{mainjs}"]);
+        require([!{bootstrap}"#{mainjs}"]);
     });
