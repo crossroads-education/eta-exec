@@ -39,10 +39,11 @@ export class WebServer {
             }, WebServer.app).listen(eta.config.http.ssl.port, function() {
                 eta.logger.info("HTTPS server started on port " + eta.config.http.ssl.port)
             });
+        } else {
+            WebServer.app.listen(eta.config.http.port, function() {
+                eta.logger.info("HTTP server started on port " + eta.config.http.port);
+            });
         }
-        WebServer.app.listen(eta.config.http.port, function() {
-            eta.logger.info("HTTP server started on port " + eta.config.http.port);
-        });
     }
 
     public static renderError(code : number, req : express.Request, res : express.Response) : void {
