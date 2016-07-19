@@ -33,8 +33,9 @@ export class WebServer {
     public static start() : void {
         if (eta.config.http.ssl.use) {
             https.createServer({
-                "key": fs.readFileSync(eta.config.http.ssl.key).toString(),
-                "cert": fs.readFileSync(eta.config.http.ssl.cert).toString()
+                "key": fs.readFileSync(eta.config.http.ssl.key),
+                "cert": fs.readFileSync(eta.config.http.ssl.cert),
+                "ca": fs.readFileSync(eta.config.http.ssl.ca)
             }, WebServer.app).listen(eta.config.http.ssl.port, function() {
                 eta.logger.info("HTTPS server started on port " + eta.config.http.ssl.port)
             });
