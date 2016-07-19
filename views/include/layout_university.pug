@@ -25,12 +25,18 @@ block footer
                 a.block-iu(href="https://iu.edu")
                     img(src="https://assets.iu.edu/brand/2.x/trident-small.png", alt="Block IU", width="22", height="26")
                 span.line-break
-                    a(href="http://www.iu.edu/copyright/index.shtml")
-                        | Copyright &#169; #{new Date().getYear() + 1900} 
+                    a(href="http://www.iu.edu/copyright/index.shtml") Copyright &#169; #{new Date().getYear() + 1900}
                 span.line-break
                     | The Trustees of 
                     a(href="https://iu.edu/", itemprop="url")
                         span(itemprop="name") Indiana University
 
 block body
-    p This page is not fully implemented.
+    style.
+        #body {
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-bottom: 2%;
+        }
+    div#body
+        block body
