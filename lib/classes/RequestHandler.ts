@@ -152,7 +152,6 @@ export class RequestHandler {
             req.session["returnTo"] = req.path;
         }
         if (env["requiresLogin"] && !req.session["userid"]) {
-            eta.logger.trace("Forcing login from " + req.path);
             res.redirect("/login");
             return;
         }
@@ -224,11 +223,20 @@ export class RequestHandler {
             }
         }
 
-        if (env["usePermissions"] && req.session["userid"]) {
+        if ((env["usePermissions"] || env["permissions"]) && req.session["userid"]) {
             eta.permission.getUser(req.session["userid"], (user : eta.PermissionUser) => {
                 if (!user) {
                     site.server.renderError(eta.http.InternalError, req, res);
                     return;
+                }
+                if (env["permissions"]) {
+                    for (let i : number = 0; i < env["permissions"].length; i++) {
+                        if (!user.has(env["permissions"][i])) {
+                            eta.logger.warn(`User ${req.session["userid"]} does not have permission ${env["permissions"][i]} to access ${path}`);
+                            site.server.renderError(eta.http.Forbidden, req, res);
+                            return;
+                        }
+                    }
                 }
                 req.session["permissions"] = user;
                 renderModels.apply(this);
@@ -242,10 +250,14 @@ export class RequestHandler {
     Needs to be separate so that scope is preserved.
     */
     private onRenderPage(req : express.Request, res : express.Response, env : {[key : string] : any}, path : string) : void {
+        if (eta.config.dev.use) {
+            env["compileDebug"] = true;
+        }
         res.render(this.config.dirs.views + path, env, (err : Error, html : string) => {
             if (err) {
                 eta.logger.warn(`Rendering ${path} failed:`);
                 eta.logger.warn(err.message);
+                site.server.renderError(eta.http.InternalError, req, res);
                 return;
             }
             if (this.models[path] && this.models[path].renderAfter) {
