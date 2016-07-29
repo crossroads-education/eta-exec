@@ -37,12 +37,21 @@ block footer
 
 block body
     style.
+        html {
+            height: 100%;
+        }
+        body {
+            position: relative;
+            height: 100%;
+        }
         #body {
+            position: relative;
             margin-left: 10px;
             margin-right: 10px;
-            margin-bottom: 40px;
+            margin-bottom: 60px;
         }
         #footer-v1 {
+            bottom: 0;
             padding: 20px 0 10px 0 !important;
         }
         #footer-v1 .tagline {
