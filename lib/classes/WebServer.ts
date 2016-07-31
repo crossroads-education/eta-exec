@@ -2,11 +2,13 @@ import * as site from "../autoload";
 
 import * as eta from "eta-lib";
 import * as express from "express";
+import * as http from "http";
 import * as https from "https";
 import * as fs from "fs";
 import * as knex from "knex";
 import * as mysql from "mysql";
 import * as nodemailer from "nodemailer";
+import * as socketIO from "socket.io";
 
 // express middleware imports
 import * as bodyParser from "body-parser";
@@ -31,18 +33,25 @@ export class WebServer {
     }
 
     public static start() : void {
+        let server : http.Server = null;
+        let port : number = -1;
         if (eta.config.http.ssl.use) {
-            https.createServer({
+            server = <any>https.createServer({
                 "key": fs.readFileSync(eta.config.http.ssl.key),
                 "cert": fs.readFileSync(eta.config.http.ssl.cert),
                 "ca": fs.readFileSync(eta.config.http.ssl.ca)
-            }, WebServer.app).listen(eta.config.http.ssl.port, function() {
-                eta.logger.info("HTTPS server started on port " + eta.config.http.ssl.port)
-            });
+            }, WebServer.app);
+            port = eta.config.http.ssl.port;
         } else {
-            WebServer.app.listen(eta.config.http.port, function() {
-                eta.logger.info("HTTP server started on port " + eta.config.http.port);
-            });
+            server = (<any>http.createServer)(WebServer.app);
+            port = eta.config.http.port;
+        }
+        (<any>eta).io = socketIO(server);
+        server.listen(port, function() {
+            eta.logger.info("HTTP" + (eta.config.http.ssl.use ? "S" : "") + " server started on port " + port);
+        });
+        for (let i in WebServer.modules) {
+            WebServer.modules[i].onSocketIO();
         }
     }
 

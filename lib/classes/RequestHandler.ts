@@ -268,6 +268,15 @@ export class RequestHandler {
         });
     }
 
+    public onSocketIO() : void {
+        for (let path in this.models) {
+            if (this.models[path].onSocketIO) {
+                this.models[path].onSocketIO();
+                eta.logger.trace("Firing socket.io setup event to " + path);
+            }
+        }
+    }
+
     /**
     Discovers and initializes models, placing them in `this.models`
     */
