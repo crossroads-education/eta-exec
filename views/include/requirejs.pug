@@ -6,7 +6,11 @@ script(src="/js/common.js")
     if (noExternalCSS) {
         bootstrap = "";
     }
+    var extraJSFinal = "";
+    if (extraJS) {
+        extraJSFinal = ",'" + extraJS.join(",").replace(/\,/g, "','") + "'";
+    }
 script.
-    require(["jquery", "jquery-ui", "es6-shim"], function() {
+    require(["jquery", "jquery-ui", "es6-shim"!{extraJSFinal}], function() {
         require([!{bootstrap}"#{mainjs}"]);
     });
