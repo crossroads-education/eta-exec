@@ -1,10 +1,10 @@
 {
-    "name": "eta-exec",
-    "version": "0.0.1",
-    "globalDependencies": {
-        "body-parser": "registry:dt/body-parser#0.0.0+20160317120654",
-        "connect": "registry:dt/connect#3.4.0+20160317120654",
-        "multer": "registry:dt/multer#0.0.0+20160317120654",
-        "recursive-readdir": "registry:dt/recursive-readdir#1.2.1+20160317120654"
-    }
+  "name": "eta-exec",
+  "version": "0.0.1",
+  "globalDependencies": {
+    "body-parser": "registry:dt/body-parser#0.0.0+20160317120654",
+    "connect": "registry:dt/connect#3.4.0+20160317120654",
+    "multer": "registry:dt/multer#0.0.0+20160317120654",
+    "recursive-readdir": "registry:dt/recursive-readdir#1.2.1+20160317120654"
+  }
 }

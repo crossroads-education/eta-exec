@@ -1,6 +1,8 @@
 /config/
+!/config/*.sample.json
 /logs/
 /modules/
 /node_modules/
 /typings/
 *.js
+*.js.map

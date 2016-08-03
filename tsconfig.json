@@ -1,17 +1,18 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitAny": true,
-        "noImplicitReturns": true,
-        "preserveConstEnums": true
-    },
-    "compileOnSave": true,
-    "buildOnSave": false,
-    "exclude": ["node_modules", "typings", "node_modules/eta-lib/typings", "modules"],
-    "atom": {
-        "rewriteTsconfig": false
-    }
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "preserveConstEnums": true,
+    "sourceMap": true
+  },
+  "compileOnSave": true,
+  "buildOnSave": false,
+  "exclude": ["node_modules", "typings", "node_modules/eta-lib/typings", "modules"],
+  "atom": {
+    "rewriteTsconfig": false
+  }
 }
