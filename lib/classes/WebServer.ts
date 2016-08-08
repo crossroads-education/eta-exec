@@ -36,12 +36,24 @@ export class WebServer {
         let server : http.Server = null;
         let port : number = -1;
         if (eta.config.http.ssl.use) {
-            server = <any>https.createServer({
+            let sslOptions : https.ServerOptions = {
                 "key": fs.readFileSync(eta.config.http.ssl.key),
-                "cert": fs.readFileSync(eta.config.http.ssl.cert),
-                "ca": fs.readFileSync(eta.config.http.ssl.ca)
-            }, WebServer.app);
+                "cert": fs.readFileSync(eta.config.http.ssl.cert)
+            };
+            if (eta.config.http.ssl.ca) {
+                sslOptions.ca = fs.readFileSync(eta.config.http.ssl.ca);
+            }
+            server = <any>https.createServer(sslOptions, WebServer.app);
             port = eta.config.http.ssl.port;
+            // for forwarding
+            http.createServer((request : http.IncomingMessage, response : http.ServerResponse) => {
+                response.writeHead(301, {
+                    "Location": "https://" + eta.config.http.host + ":" + eta.config.http.ssl.port + request.url
+                });
+                response.end();
+            }).listen(eta.config.http.port, function() {
+                eta.logger.info("HTTP redirect server started on port " + eta.config.http.port);
+            });
         } else {
             server = (<any>http.createServer)(WebServer.app);
             port = eta.config.http.port;
