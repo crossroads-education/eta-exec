@@ -72,6 +72,10 @@ export class RequestHandler {
                         this.renderPage(req, res, path);
                         return;
                     }
+                    if (!path.endsWith("/") && eta.fs.existsSync(this.config.dirs.views + path)) {
+                        res.redirect(req.path + "/");
+                        return;
+                    }
                     if (this.config.path == "/") { // it won't give other modules a chance to handle the request
                         next();
                     } else {

@@ -89,7 +89,9 @@ export class WebServer {
                 let handler : site.RequestHandler = new site.RequestHandler(files[i], moduleConfig);
                 eta.logger.trace(`Discovered module "${files[i]}" to handle path "${handler.config.path}"`);
                 WebServer.modules[handler.moduleName] = handler;
-                WebServer.app.all(handler.config.path + "*", handler.handle());
+                let callback : (req : express.Request, res : express.Response, next : Function) => void = handler.handle();
+                WebServer.app.all(handler.config.path.substring(0, handler.config.path.length - 1), callback); // For instance, /office instead of /office/
+                WebServer.app.all(handler.config.path + "*", callback);
             }
         });
     }
