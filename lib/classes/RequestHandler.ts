@@ -32,12 +32,20 @@ export class RequestHandler {
 
     public defaultEnv : {[key : string] : any};
 
+    /**
+    Contents of redirects.json. Key: original, value: new URL.
+    Relative to module (not server) root.
+    */
+    public redirects : {[key : string] : string} = {};
+
     public constructor(moduleName : string, config : eta.ModuleConfiguration) {
         this.config = config;
         this.moduleName = moduleName;
         this.root = site.root + site.server.moduleDir + "/" + this.moduleName + "/";
         this.validateConfig();
         this.staticDirs = fs.readdirSync(this.config.dirs.static);
+        let redirectFile : string = this.config.dirs.models + "redirects.json";
+        this.redirects = eta.fs.existsSync(redirectFile) ? JSON.parse(fs.readFileSync(redirectFile).toString()) : {};
         this.setupDefaultEnv();
         this.setupModels();
     }
@@ -61,6 +69,10 @@ export class RequestHandler {
             }
             if (path.endsWith("/")) {
                 path += "index"; // so we can interpret it properly
+            }
+            if (this.redirects[path]) {
+                res.redirect(`/${this.moduleName}/${this.redirects[path]}`, 301);
+                return;
             }
             eta.fs.exists(this.config.dirs.views + path + ".pug", (exists : boolean) => {
                 if (!exists) {
@@ -310,6 +322,9 @@ export class RequestHandler {
                     let handler : any = require(filename); // we don't really know what else might be exported along with Model
                     let model : eta.Model = new handler.Model(); // the file must export Model implements eta.Model
                     this.models[path] = model;
+                    if (this.models[path].onScheduleInit) {
+                        this.models[path].onScheduleInit();
+                    }
                 } catch (ex) {
                     eta.logger.warn("Could not load model for " + path + ": " + ex.message);
                 }
