@@ -1,11 +1,14 @@
 import * as site from "../autoload";
 
+import * as chokidar from "chokidar";
 import * as eta from "eta-lib";
 import * as express from "express";
 import * as fs from "fs";
 import * as mime from "mime";
 import * as recursiveReaddir from "recursive-readdir";
 import * as urllib from "url";
+
+let reload : (id : string) => any = require("require-reload")(require);
 
 export class RequestHandler {
     /**
@@ -293,10 +296,43 @@ export class RequestHandler {
         }
     }
 
+    private loadModel(filename : string) : void {
+        // removing absolute directory from path, since it's not in the webserver request
+        let tokens : string[] = filename.substring(this.config.dirs.models.length - 1).split("/");
+        tokens.splice(-1, 1); // remove the actual filename, since that isn't important (structure is /{path}/whatever.ts)
+
+        let path : string = "/" + tokens.join("/"); // path relative to module root
+
+        // only if .endsWith("js"), but there's nothing else yet
+        try {
+            let handler : any = require(filename); // we don't really know what else might be exported along with Model
+            let model : eta.Model = new handler.Model(); // the file must export Model implements eta.Model
+            this.models[path] = model;
+            if (this.models[path].onScheduleInit) {
+                this.models[path].onScheduleInit();
+            }
+        } catch (ex) {
+            eta.logger.warn("Could not load model for " + path + ": " + ex.message);
+        }
+    }
+
     /**
     Discovers and initializes models, placing them in `this.models`
     */
     private setupModels() : void {
+        if (eta.config.dev.use) { // never do this in production
+            let watcher : fs.FSWatcher = chokidar.watch(this.config.dirs.models, {
+                "persistent": false
+            });
+            watcher.on("change", (path : string) => {
+                path = path.replace(/\\/g, "/");
+                if (!path.endsWith(".js")) {
+                    return;
+                }
+                reload(path);
+                this.loadModel(path);
+            });
+        }
         let ignoredGlobs : string[] = ["*.ts"];
         // each file is a relative path from the site root (technically process.cwd(), which should be site root)
         recursiveReaddir(this.config.dirs.models, ignoredGlobs, (err : NodeJS.ErrnoException, files : string[]) => {
@@ -310,24 +346,7 @@ export class RequestHandler {
                     continue;
                 }
                 let filename : string = files[i].replace(/\\/g, "/");
-
-                // removing absolute directory from path, since it's not in the webserver request
-                let tokens : string[] = filename.substring(this.config.dirs.models.length - 1).split("/");
-                tokens.splice(-1, 1); // remove the actual filename, since that isn't important (structure is /{path}/whatever.ts)
-
-                let path : string = "/" + tokens.join("/"); // path relative to module root
-
-                // only if .endsWith("js"), but there's nothing else yet
-                try {
-                    let handler : any = require(filename); // we don't really know what else might be exported along with Model
-                    let model : eta.Model = new handler.Model(); // the file must export Model implements eta.Model
-                    this.models[path] = model;
-                    if (this.models[path].onScheduleInit) {
-                        this.models[path].onScheduleInit();
-                    }
-                } catch (ex) {
-                    eta.logger.warn("Could not load model for " + path + ": " + ex.message);
-                }
+                this.loadModel(filename);
             }
         });
     }

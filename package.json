@@ -14,6 +14,7 @@
   "main": "./server.js",
   "dependencies": {
     "body-parser": "^1.15.1",
+    "chokidar": "^1.6.0",
     "es6-shim": "^0.35.1",
     "eta-lib": "git+https://git@github.com/crossroads-education/eta-lib.git",
     "express": "^4.13.4",
@@ -26,6 +27,7 @@
     "nodemailer": "^2.4.2",
     "pug": "^2.0.0-beta4",
     "recursive-readdir": "^2.0.0",
+    "require-reload": "^0.2.2",
     "socket.io": "^1.4.8",
     "source-map-support": "^0.4.2",
     "stack-trace": "0.0.9"
