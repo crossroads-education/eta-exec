@@ -69,9 +69,15 @@ export class WebServer {
 
     public static renderError(code : number, req : express.Request, res : express.Response) : void {
         res.statusCode = code;
-        res.render(site.root + "views/error", {
-            "code": code,
-            "email": "webmaster@" + req.hostname
+        let view : string = site.root + "views/errors/" + code.toString();
+        eta.fs.exists(view + ".pug", function(exists : boolean) {
+            if (!exists) {
+                view = site.root + "views/errors/layout";
+            }
+            res.render(view, {
+                "code": code,
+                "email": "webmaster@" + eta.config.http.host
+            });
         });
     }
 
