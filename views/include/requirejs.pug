@@ -5,8 +5,11 @@ script
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-    ga('create', 'UA-84076310-1', 'auto');
+    ga('create', 'UA-84076310-1', 'auto', {'allowLinker': true});
+    ga('require', 'linker');
+    ga('linker:autoLink', ['mac.iupui.edu']);
     ga('send', 'pageview');
+
 script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js")
 script(src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js")
 script(src="/js/common.js")
