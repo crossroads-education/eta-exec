@@ -165,7 +165,11 @@ export class RequestHandler {
         }
         let jsonFile : string = this.config.dirs.models + path + "/" + path.split("/").splice(-1, 1) + ".json";
         if (eta.fs.existsSync(jsonFile)) {
-            env = this.addToEnv(env, JSON.parse(fs.readFileSync(jsonFile).toString()));
+            try {
+                env = this.addToEnv(env, JSON.parse(fs.readFileSync(jsonFile).toString()));
+            } catch (err) {
+                eta.logger.warn("JSON is formatted incorrectly in " + jsonFile);
+            }
         }
         if (!env["useRedirect"]) {
             req.session["returnTo"] = req.path;
