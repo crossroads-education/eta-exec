@@ -1,6 +1,6 @@
 require("source-map-support").install();
 
-process.on("uncaughtException", function(err : Error) {
+process.on("uncaughtException", function(err: Error) {
     console.log("An uncaught error occurred: " + err.message);
     console.log(err.stack);
 });

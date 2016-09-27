@@ -8,46 +8,46 @@ import * as mime from "mime";
 import * as recursiveReaddir from "recursive-readdir";
 import * as urllib from "url";
 
-let reload : (id : string) => any = require("require-reload")(require);
+let reload: (id: string) => any = require("require-reload")(require);
 
 export class RequestHandler {
     /**
     The module configuration, pulled from eta.json
     */
-    public config : eta.ModuleConfiguration;
+    public config: eta.ModuleConfiguration;
 
     /**
     The name of this module
     */
-    public moduleName : string;
+    public moduleName: string;
 
     /**
     The root directory of this module
     */
-    public root : string;
+    public root: string;
 
     /**
     Pre-loaded Model instances, indexed by server-relative path.
     */
-    public models : {[key : string] : eta.Model} = {};
+    public models: { [key: string]: eta.Model } = {};
 
-    public staticDirs : string[];
+    public staticDirs: string[];
 
-    public defaultEnv : {[key : string] : any};
+    public defaultEnv: { [key: string]: any };
 
     /**
     Contents of redirects.json. Key: original, value: new URL.
     Relative to module (not server) root.
     */
-    public redirects : {[key : string] : string} = {};
+    public redirects: { [key: string]: string } = {};
 
-    public constructor(moduleName : string, config : eta.ModuleConfiguration) {
+    public constructor(moduleName: string, config: eta.ModuleConfiguration) {
         this.config = config;
         this.moduleName = moduleName;
         this.root = site.root + site.server.moduleDir + "/" + this.moduleName + "/";
         this.validateConfig();
         this.staticDirs = fs.readdirSync(this.config.dirs.static);
-        let redirectFile : string = this.config.dirs.models + "redirects.json";
+        let redirectFile: string = this.config.dirs.models + "redirects.json";
         this.redirects = eta.fs.existsSync(redirectFile) ? JSON.parse(fs.readFileSync(redirectFile).toString()) : {};
         this.setupDefaultEnv();
         this.setupModels();
@@ -57,14 +57,14 @@ export class RequestHandler {
     This is added as a listener for its path on the main WebServer.
     Must be a callback builder so we preserve `this.` scope.
     */
-    public handle() : (req : express.Request, res : express.Response, next : Function) => void {
-        return (req : express.Request, res : express.Response, next : Function) : void => {
-            let path : string = req.path.substring(this.config.path.length - 1);
+    public handle(): (req: express.Request, res: express.Response, next: Function) => void {
+        return (req: express.Request, res: express.Response, next: Function): void => {
+            let path: string = req.path.substring(this.config.path.length - 1);
             if (path.startsWith("/static")) { // should be accessed by /whatever, not /static/whatever
                 site.server.renderError(eta.http.NotFound, req, res); // technically it does exist, though (possibly)
                 return;
             }
-            for (let i : number = 0; i < this.staticDirs.length; i++) {
+            for (let i: number = 0; i < this.staticDirs.length; i++) {
                 if (path.startsWith("/" + this.staticDirs[i] + "/")) {
                     this.serveStatic(req, res, path, next);
                     return;
@@ -77,7 +77,7 @@ export class RequestHandler {
                 res.redirect(301, `/${this.moduleName}/${this.redirects[path]}`);
                 return;
             }
-            eta.fs.exists(this.config.dirs.views + path + ".pug", (exists : boolean) => {
+            eta.fs.exists(this.config.dirs.views + path + ".pug", (exists: boolean) => {
                 if (!exists) {
                     if (path.startsWith("/post/")) {
                         if (!this.models[path]) {
@@ -104,8 +104,8 @@ export class RequestHandler {
         };
     }
 
-    private serveStatic(req : express.Request, res : express.Response, path : string, next : Function) : void {
-        eta.fs.exists(this.config.dirs.static + path, (exists : boolean) => {
+    private serveStatic(req: express.Request, res: express.Response, path: string, next: Function): void {
+        eta.fs.exists(this.config.dirs.static + path, (exists: boolean) => {
             if (!exists) {
                 if (this.config.path == "/") {
                     next();
@@ -115,7 +115,7 @@ export class RequestHandler {
                 site.server.renderError(eta.http.NotFound, req, res);
                 return;
             }
-            fs.readFile(this.config.dirs.static + path, (err : NodeJS.ErrnoException, data : Buffer) => {
+            fs.readFile(this.config.dirs.static + path, (err: NodeJS.ErrnoException, data: Buffer) => {
                 if (err) {
                     eta.logger.warn("Error reading file from " + req.path);
                     site.server.renderError(eta.http.InternalError, req, res);
@@ -129,13 +129,13 @@ export class RequestHandler {
 
     private setupDefaultEnv() {
         this.defaultEnv = JSON.parse(fs.readFileSync(site.root + "lib/defaultEnv.json").toString());
-        let customEnvFile : string = this.config.dirs.models + "env.json";
+        let customEnvFile: string = this.config.dirs.models + "env.json";
         if (eta.fs.existsSync(customEnvFile)) {
             this.defaultEnv = this.addToEnv(this.defaultEnv, JSON.parse(fs.readFileSync(customEnvFile).toString()));
         }
     }
 
-    private addToEnv(env : {[key : string] : any}, newEnv : {[key : string] : any}) : {[key : string] : any} {
+    private addToEnv(env: { [key: string]: any }, newEnv: { [key: string]: any }): { [key: string]: any } {
         for (let i in newEnv) {
             if (newEnv[i] instanceof Array && env[i] instanceof Array) {
                 env[i] = env[i].concat(newEnv[i]);
@@ -149,8 +149,8 @@ export class RequestHandler {
     /**
     Renders a view (and possibly a model) once the view is known to exist.
     */
-    private renderPage(req : express.Request, res : express.Response, path : string) : void {
-        let env : {[key : string] : any} = {
+    private renderPage(req: express.Request, res: express.Response, path: string): void {
+        let env: { [key: string]: any } = {
             "baseurl": req.protocol + "://" + req.get("host") + this.config.path,
             "models": []
         };
@@ -163,7 +163,7 @@ export class RequestHandler {
         if (eta.fs.existsSync(this.config.dirs.static + "css" + path + ".css")) {
             env["css"].push(this.config.path + "css" + path + ".css");
         }
-        let jsonFile : string = this.config.dirs.models + path + "/" + path.split("/").splice(-1, 1) + ".json";
+        let jsonFile: string = this.config.dirs.models + path + "/" + path.split("/").splice(-1, 1) + ".json";
         if (eta.fs.existsSync(jsonFile)) {
             try {
                 env = this.addToEnv(env, JSON.parse(fs.readFileSync(jsonFile).toString()));
@@ -179,8 +179,8 @@ export class RequestHandler {
             return;
         }
         if (env["allowedPositions"]) {
-            let isAllowed : boolean = false;
-            for (let i : number = 0; i < req.session["positions"].length; i++) {
+            let isAllowed: boolean = false;
+            for (let i: number = 0; i < req.session["positions"].length; i++) {
                 if (env["allowedPositions"].indexOf(req.session["positions"][i]) !== -1) {
                     isAllowed = true;
                 }
@@ -197,10 +197,10 @@ export class RequestHandler {
             return;
         }
 
-        function renderModels() : void {
-            let modelEnvs : {[key : string] : any}[] = [];
+        function renderModels(): void {
+            let modelEnvs: { [key: string]: any }[] = [];
             function onRenderComplete() {
-                for (let i : number = 0; i < modelEnvs.length; i++) {
+                for (let i: number = 0; i < modelEnvs.length; i++) {
                     env = this.addToEnv(env, modelEnvs[i]);
                 }
                 if (env["errcode"]) {
@@ -208,7 +208,7 @@ export class RequestHandler {
                     return;
                 }
                 if (path.startsWith("/post/")) {
-                    let data : string | Buffer = "";
+                    let data: string | Buffer = "";
                     if (env["raw"]) {
                         data = env["raw"];
                         if (!(<any>data instanceof Buffer)) {
@@ -220,8 +220,8 @@ export class RequestHandler {
                 }
                 this.onRenderPage(req, res, env, path);
             }
-            for (let i : number = 0; i < env["models"].length; i++) {
-                let modelPath : string = env["models"][i];
+            for (let i: number = 0; i < env["models"].length; i++) {
+                let modelPath: string = env["models"][i];
                 if (!this.models[modelPath]) {
                     eta.logger.warn("Model " + modelPath + " not found for page " + path);
                     continue;
@@ -232,10 +232,10 @@ export class RequestHandler {
                         "fullUrl": env["baseurl"] + path.substring(1)
                     });
                 }
-                this.models[modelPath].render(req, res, (modelEnv : {[key : string] : any}) => {
+                this.models[modelPath].render(req, res, (modelEnv: { [key: string]: any }) => {
                     modelEnvs[i] = modelEnv;
                     if (modelEnvs.length == env["models"].length) {
-                        for (let k : number = 0; k < modelEnvs.length; k++) {
+                        for (let k: number = 0; k < modelEnvs.length; k++) {
                             if (modelEnvs[k] == undefined) {
                                 return; // not actually done
                             }
@@ -247,13 +247,13 @@ export class RequestHandler {
         }
 
         if ((env["usePermissions"] || env["permissions"]) && req.session["userid"]) {
-            eta.permission.getUser(req.session["userid"], (user : eta.PermissionUser) => {
+            eta.permission.getUser(req.session["userid"], (user: eta.PermissionUser) => {
                 if (!user) {
                     site.server.renderError(eta.http.InternalError, req, res);
                     return;
                 }
                 if (env["permissions"]) {
-                    for (let i : number = 0; i < env["permissions"].length; i++) {
+                    for (let i: number = 0; i < env["permissions"].length; i++) {
                         if (!user.has(env["permissions"][i])) {
                             eta.logger.warn(`User ${req.session["userid"]} does not have permission ${env["permissions"][i]} to access ${path}`);
                             site.server.renderError(eta.http.Forbidden, req, res);
@@ -272,11 +272,11 @@ export class RequestHandler {
     /**
     Needs to be separate so that scope is preserved.
     */
-    private onRenderPage(req : express.Request, res : express.Response, env : {[key : string] : any}, path : string) : void {
+    private onRenderPage(req: express.Request, res: express.Response, env: { [key: string]: any }, path: string): void {
         if (eta.config.dev.use) {
             env["compileDebug"] = true;
         }
-        res.render(this.config.dirs.views + path, env, (err : Error, html : string) => {
+        res.render(this.config.dirs.views + path, env, (err: Error, html: string) => {
             if (err) {
                 eta.logger.warn(`Rendering ${path} failed:`);
                 eta.logger.warn(err.message);
@@ -291,7 +291,7 @@ export class RequestHandler {
         });
     }
 
-    public onSocketIO() : void {
+    public onSocketIO(): void {
         for (let path in this.models) {
             if (this.models[path].onSocketIO) {
                 this.models[path].onSocketIO();
@@ -300,17 +300,17 @@ export class RequestHandler {
         }
     }
 
-    private loadModel(filename : string) : void {
+    private loadModel(filename: string): void {
         // removing absolute directory from path, since it's not in the webserver request
-        let tokens : string[] = filename.substring(this.config.dirs.models.length - 1).split("/");
+        let tokens: string[] = filename.substring(this.config.dirs.models.length - 1).split("/");
         tokens.splice(-1, 1); // remove the actual filename, since that isn't important (structure is /{path}/whatever.ts)
 
-        let path : string = "/" + tokens.join("/"); // path relative to module root
+        let path: string = "/" + tokens.join("/"); // path relative to module root
 
         // only if .endsWith("js"), but there's nothing else yet
         try {
-            let handler : any = require(filename); // we don't really know what else might be exported along with Model
-            let model : eta.Model = new handler.Model(); // the file must export Model implements eta.Model
+            let handler: any = require(filename); // we don't really know what else might be exported along with Model
+            let model: eta.Model = new handler.Model(); // the file must export Model implements eta.Model
             this.models[path] = model;
             if (this.models[path].onScheduleInit) {
                 this.models[path].onScheduleInit();
@@ -323,12 +323,12 @@ export class RequestHandler {
     /**
     Discovers and initializes models, placing them in `this.models`
     */
-    private setupModels() : void {
+    private setupModels(): void {
         if (eta.config.dev.use) { // never do this in production
-            let watcher : fs.FSWatcher = chokidar.watch(this.config.dirs.models, {
+            let watcher: fs.FSWatcher = chokidar.watch(this.config.dirs.models, {
                 "persistent": false
             });
-            watcher.on("change", (path : string) => {
+            watcher.on("change", (path: string) => {
                 path = path.replace(/\\/g, "/");
                 if (!path.endsWith(".js")) {
                     return;
@@ -337,19 +337,19 @@ export class RequestHandler {
                 this.loadModel(path);
             });
         }
-        let ignoredGlobs : string[] = ["*.ts"];
+        let ignoredGlobs: string[] = ["*.ts"];
         // each file is a relative path from the site root (technically process.cwd(), which should be site root)
-        recursiveReaddir(this.config.dirs.models, ignoredGlobs, (err : NodeJS.ErrnoException, files : string[]) => {
+        recursiveReaddir(this.config.dirs.models, ignoredGlobs, (err: NodeJS.ErrnoException, files: string[]) => {
             if (err) {
                 eta.logger.warn("Could not read " + this.config.dirs.models + " recursively.");
                 eta.logger.trace(err.message);
                 return;
             }
-            for (let i : number = 0; i < files.length; i++) {
+            for (let i: number = 0; i < files.length; i++) {
                 if (!files[i].endsWith(".js")) {
                     continue;
                 }
-                let filename : string = files[i].replace(/\\/g, "/");
+                let filename: string = files[i].replace(/\\/g, "/");
                 this.loadModel(filename);
             }
         });
@@ -358,13 +358,13 @@ export class RequestHandler {
     /**
     Fills in any optional parameters for `this.config`
     */
-    private validateConfig() : void {
+    private validateConfig(): void {
         if (!this.config.dirs) {
             this.config.dirs = {};
         }
-        let dirs : string[] = ["models", "static", "views"];
-        let configDirs : {[key : string] : string} = <{[key : string] : string}> this.config.dirs;
-        for (let i : number = 0; i < dirs.length; i++) {
+        let dirs: string[] = ["models", "static", "views"];
+        let configDirs: { [key: string]: string } = <{ [key: string]: string }>this.config.dirs;
+        for (let i: number = 0; i < dirs.length; i++) {
             // very ugly type manipulation, please do not look
             // forcing this.config.dirs to be a generic object so we can look up seemingly random keys
             // then if the key doesn't exist, add it as the default value (moduleRoot + keyName)
