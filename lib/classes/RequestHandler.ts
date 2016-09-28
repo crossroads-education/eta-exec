@@ -291,15 +291,6 @@ export class RequestHandler {
         });
     }
 
-    public onSocketIO(): void {
-        for (let path in this.models) {
-            if (this.models[path].onSocketIO) {
-                this.models[path].onSocketIO();
-                eta.logger.trace("Firing socket.io setup event to " + path);
-            }
-        }
-    }
-
     private loadModel(filename: string): void {
         // removing absolute directory from path, since it's not in the webserver request
         let tokens: string[] = filename.substring(this.config.dirs.models.length - 1).split("/");

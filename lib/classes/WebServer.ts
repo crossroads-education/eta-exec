@@ -8,7 +8,6 @@ import * as fs from "fs";
 import * as knex from "knex";
 import * as mysql from "mysql";
 import * as nodemailer from "nodemailer";
-import * as socketIO from "socket.io";
 
 // express middleware imports
 import * as bodyParser from "body-parser";
@@ -58,13 +57,9 @@ export class WebServer {
             server = (<any>http.createServer)(WebServer.app);
             port = eta.config.http.port;
         }
-        (<any>eta).io = socketIO(server);
         server.listen(port, function() {
             eta.logger.info("HTTP" + (eta.config.http.ssl.use ? "S" : "") + " server started on port " + port);
         });
-        for (let i in WebServer.modules) {
-            WebServer.modules[i].onSocketIO();
-        }
     }
 
     public static renderError(code: number, req: express.Request, res: express.Response): void {
@@ -93,11 +88,14 @@ export class WebServer {
                 }
                 let moduleConfig: eta.ModuleConfiguration = JSON.parse(fs.readFileSync(dir + "eta.json").toString());
                 let handler: site.RequestHandler = new site.RequestHandler(files[i], moduleConfig);
-                eta.logger.trace(`Discovered module "${files[i]}" to handle path "${handler.config.path}"`);
+                eta.logger.trace(`Discovered module "${moduleConfig.name}" to handle path "${handler.config.path}"`);
                 WebServer.modules[handler.moduleName] = handler;
                 let callback: (req: express.Request, res: express.Response, next: Function) => void = handler.handle();
                 WebServer.app.all(handler.config.path.substring(0, handler.config.path.length - 1), callback); // For instance, /office instead of /office/
                 WebServer.app.all(handler.config.path + "*", callback);
+                let serverConfig: any = eta.object.copy(moduleConfig);
+                serverConfig.baseDir = handler.root;
+                eta.server.modules[moduleConfig.name] = serverConfig;
             }
         });
     }
