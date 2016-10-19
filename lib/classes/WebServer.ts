@@ -35,9 +35,10 @@ export class WebServer {
         let server: http.Server = null;
         let port: number = -1;
         if (eta.config.http.ssl.use) {
-            let sslOptions: https.ServerOptions = {
+            let sslOptions: any = {
                 "key": fs.readFileSync(eta.config.http.ssl.key),
-                "cert": fs.readFileSync(eta.config.http.ssl.cert)
+                "cert": fs.readFileSync(eta.config.http.ssl.cert),
+                "secureProtocol": "TLSv1_2_method"
             };
             if (eta.config.http.ssl.ca) {
                 sslOptions.ca = fs.readFileSync(eta.config.http.ssl.ca);
