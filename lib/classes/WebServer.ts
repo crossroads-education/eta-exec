@@ -47,8 +47,12 @@ export class WebServer {
             port = eta.config.http.ssl.port;
             // for forwarding
             http.createServer((request: http.IncomingMessage, response: http.ServerResponse) => {
+                let redirectPort: number = eta.config.http.ssl.port;
+                if (eta.config.http.ssl.redirectPort) {
+                    redirectPort = eta.config.http.ssl.redirectPort;
+                }
                 response.writeHead(301, {
-                    "Location": "https://" + eta.config.http.host + ":" + eta.config.http.ssl.port + request.url
+                    "Location": "https://" + eta.config.http.host + ":" + redirectPort + request.url
                 });
                 response.end();
             }).listen(eta.config.http.port, function() {

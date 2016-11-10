@@ -74,7 +74,7 @@ export class RequestHandler {
                 path += "index"; // so we can interpret it properly
             }
             if (this.redirects[path]) {
-                res.redirect(301, `/${this.moduleName}/${this.redirects[path]}`);
+                res.redirect(301, `${this.config.path}${this.redirects[path]}`);
                 return;
             }
             eta.fs.exists(this.config.dirs.views + path + ".pug", (exists: boolean) => {
