@@ -5,9 +5,7 @@ import * as express from "express";
 import * as http from "http";
 import * as https from "https";
 import * as fs from "fs";
-import * as knex from "knex";
 import * as mysql from "mysql";
-import * as nodemailer from "nodemailer";
 
 // express middleware imports
 import * as bodyParser from "body-parser";
@@ -140,16 +138,6 @@ export class WebServer {
     private static initEtaLib() {
         // have to do some hacky stuff to get this working
         (<any>eta).logger = new eta.Logger(process.cwd());
-        (<any>eta).knex = knex({
-            "client": "mysql",
-            "connection": eta.config.db
-        });
-        let smtpString: string = "smtp";
-        if (eta.config.mail.secure) {
-            smtpString += "s";
-        }
-        smtpString += "://" + eta.config.mail.host + ":" + eta.config.mail.port;
-        (<any>eta).mail = nodemailer.createTransport(smtpString);
         eta.db.on("error", (err: eta.DBError) => {
             eta.logger.warn("Database error: " + err.code);
         });

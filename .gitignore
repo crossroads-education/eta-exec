@@ -3,6 +3,8 @@
 /logs/
 /modules/
 /node_modules/
+/temp/
 /typings/
 *.js
 *.js.map
+*.dll

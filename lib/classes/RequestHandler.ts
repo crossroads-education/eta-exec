@@ -178,17 +178,6 @@ export class RequestHandler {
             res.redirect("/login");
             return;
         }
-        if (env["allowedPositions"]) {
-            let isAllowed: boolean = false;
-            for (let i: number = 0; i < req.session["positions"].length; i++) {
-                if (env["allowedPositions"].indexOf(req.session["positions"][i]) !== -1) {
-                    isAllowed = true;
-                }
-            }
-            if (!isAllowed) {
-                site.server.renderError(eta.http.Forbidden, req, res);
-            }
-        }
         if (this.models[path]) {
             env["models"].push(path);
         }
@@ -245,28 +234,7 @@ export class RequestHandler {
                 });
             }
         }
-
-        if ((env["usePermissions"] || env["permissions"]) && req.session["userid"]) {
-            eta.permission.getUser(req.session["userid"], (user: eta.PermissionUser) => {
-                if (!user) {
-                    site.server.renderError(eta.http.InternalError, req, res);
-                    return;
-                }
-                if (env["permissions"]) {
-                    for (let i: number = 0; i < env["permissions"].length; i++) {
-                        if (!user.has(env["permissions"][i])) {
-                            eta.logger.warn(`User ${req.session["userid"]} does not have permission ${env["permissions"][i]} to access ${path}`);
-                            site.server.renderError(eta.http.Forbidden, req, res);
-                            return;
-                        }
-                    }
-                }
-                req.session["permissions"] = user;
-                renderModels.apply(this);
-            });
-        } else {
-            renderModels.apply(this);
-        }
+        renderModels.apply(this);
     }
 
     /**
