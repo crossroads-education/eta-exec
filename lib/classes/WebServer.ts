@@ -32,6 +32,9 @@ export class WebServer {
     }
 
     public static start(): void {
+        function onHTTPServerError(err: Error): void {
+            eta.logger.error("HTTP server error occurred: " + err.message);
+        }
         let server: http.Server = null;
         let port: number = -1;
         if (eta.config.http.ssl.use) {
@@ -55,14 +58,14 @@ export class WebServer {
                     "Location": "https://" + eta.config.http.host + ":" + redirectPort + request.url
                 });
                 response.end();
-            }).listen(eta.config.http.port, function() {
+            }).on("error", onHTTPServerError).listen(eta.config.http.port, function() {
                 eta.logger.info("HTTP redirect server started on port " + eta.config.http.port);
             });
         } else {
             server = (<any>http.createServer)(WebServer.app);
             port = eta.config.http.port;
         }
-        server.listen(port, function() {
+        server.on("error", onHTTPServerError).listen(port, function() {
             eta.logger.info("HTTP" + (eta.config.http.ssl.use ? "S" : "") + " server started on port " + port);
         });
     }
@@ -140,6 +143,8 @@ export class WebServer {
     private static initEtaLib() {
         // have to do some hacky stuff to get this working
         (<any>eta).logger = new eta.Logger(process.cwd());
+
+        // TODO: Remove once Compass is rewritten to avoid using Knex
         (<any>eta).knex = knex({
             "client": "mysql",
             "connection": eta.config.db
