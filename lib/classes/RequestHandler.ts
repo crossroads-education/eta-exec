@@ -232,6 +232,17 @@ export class RequestHandler {
                         "fullUrl": env["baseurl"] + path.substring(1)
                     });
                 }
+                if (modelPath != path) {
+                    let jsonFile: string = this.config.dirs.models + modelPath + "/" + modelPath.split("/").splice(-1, 1) + ".json";
+                    if (eta.fs.existsSync(jsonFile)) {
+                        try {
+                            env = this.addToEnv(env, JSON.parse(fs.readFileSync(jsonFile).toString()));
+                            eta.logger.json(env["models"]);
+                        } catch (err) {
+                            eta.logger.warn("JSON is formatted incorrectly in " + jsonFile);
+                        }
+                    }
+                }
                 this.models[modelPath].render(req, res, (modelEnv: { [key: string]: any }) => {
                     modelEnvs[i] = modelEnv;
                     if (modelEnvs.length == env["models"].length) {
