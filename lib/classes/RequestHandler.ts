@@ -237,7 +237,6 @@ export class RequestHandler {
                     if (eta.fs.existsSync(jsonFile)) {
                         try {
                             env = this.addToEnv(env, JSON.parse(fs.readFileSync(jsonFile).toString()));
-                            eta.logger.json(env["models"]);
                         } catch (err) {
                             eta.logger.warn("JSON is formatted incorrectly in " + jsonFile);
                         }
