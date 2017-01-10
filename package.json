@@ -16,7 +16,7 @@
     "body-parser": "^1.15.1",
     "chokidar": "^1.6.0",
     "es6-shim": "^0.35.1",
-    "eta-lib": "git+https://git@github.com/crossroads-education/eta-lib.git",
+    "eta-lib": "git+https://git@github.com/crossroads-education/eta-lib.git#slim",
     "express": "^4.13.4",
     "express-mysql-session": "^1.1.1",
     "express-session": "^1.13.0",
