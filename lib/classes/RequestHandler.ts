@@ -59,7 +59,7 @@ export class RequestHandler {
     */
     public handle(): (req: express.Request, res: express.Response, next: Function) => void {
         return (req: express.Request, res: express.Response, next: Function): void => {
-            let path: string = req.path.substring(this.config.path.length - 1);
+            let path: string = req.path.substring(this.config.path.length - 1).replace(/\/\//g, "/");
             if (path.startsWith("/static")) { // should be accessed by /whatever, not /static/whatever
                 site.server.renderError(eta.http.NotFound, req, res); // technically it does exist, though (possibly)
                 return;
