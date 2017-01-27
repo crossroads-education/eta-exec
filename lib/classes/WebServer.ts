@@ -6,8 +6,8 @@ import * as http from "http";
 import * as https from "https";
 import * as fs from "fs";
 import * as knex from "knex";
-import * as mysql from "mysql";
 import * as nodemailer from "nodemailer";
+import * as pg from "pg";
 
 // express middleware imports
 import * as bodyParser from "body-parser";
@@ -15,7 +15,7 @@ import * as multer from "multer";
 import * as session from "express-session";
 
 // store session data in a DB
-let MySQLStore: any = require("express-mysql-session")(session);
+let PgStore: any = require("connect-pg-simple")(session);
 
 export class WebServer {
     public static app: express.Application;
@@ -121,12 +121,14 @@ export class WebServer {
     }
 
     private static setupMiddleware(): void {
-        (<any>eta).db = mysql.createConnection(eta.config.db);
+        (<any>eta).db = new pg.Pool(eta.config.db);
         WebServer.app.use(session({
             "secret": eta.config.http.secret,
             "resave": true,
             "saveUninitialized": false,
-            "store": new MySQLStore({}, eta.db)
+            "store": new PgStore({
+                pg: pg
+            })
         }));
 
         // file uploading
@@ -146,7 +148,7 @@ export class WebServer {
 
         // TODO: Remove once Compass is rewritten to avoid using Knex
         (<any>eta).knex = knex({
-            "client": "mysql",
+            "client": "pg",
             "connection": eta.config.db
         });
         let smtpString: string = "smtp";
@@ -155,12 +157,12 @@ export class WebServer {
         }
         smtpString += "://" + eta.config.mail.host + ":" + eta.config.mail.port;
         (<any>eta).mail = nodemailer.createTransport(smtpString);
-        eta.db.on("error", (err: eta.DBError) => {
-            eta.logger.warn("Database error: " + err.code);
+        eta.db.on("error", (err: Error) => {
+            eta.logger.warn("Database error: " + err.message);
         });
-        eta.db.connect((err: eta.DBError) => {
+        eta.db.connect((err: Error, client: pg.Client, done: () => void) => {
             if (err) {
-                eta.logger.warn("Error connecting to database: " + err.code);
+                eta.logger.warn("Error connecting to database: " + err.message);
             } else {
                 eta.logger.info("Database connected.");
             }
