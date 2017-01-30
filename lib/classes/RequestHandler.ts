@@ -257,8 +257,9 @@ export class RequestHandler {
         }
 
         if ((env["usePermissions"] || env["permissions"]) && req.session["userid"]) {
-            eta.permission.getUser(req.session["userid"], (user: eta.PermissionUser) => {
-                if (!user) {
+            eta.permission.getUser(req.session["userid"], (err: Error, user: eta.PermissionUser) => {
+                if (!err) {
+                    eta.logger.error(err);
                     site.server.renderError(eta.http.InternalError, req, res);
                     return;
                 }

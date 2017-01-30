@@ -127,7 +127,7 @@ export class WebServer {
             "resave": true,
             "saveUninitialized": false,
             "store": new PgStore({
-                pg: pg
+                pg: eta.db
             })
         }));
 
