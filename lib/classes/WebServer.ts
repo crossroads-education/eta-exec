@@ -122,6 +122,20 @@ export class WebServer {
 
     private static setupMiddleware(): void {
         (<any>eta).db = new pg.Pool(eta.config.db);
+        (<any>eta).db.query_ = eta.db.query;
+        (<any>eta).db.query = function(sql: string, params: any[], callback: (err: Error, result?: eta.QueryResult) => void) {
+            eta.logger.trace(sql);
+            eta.db.connect((err: Error, client: pg.Client, done: () => void) => {
+                if (err) {
+                    return callback(err);
+                }
+                client.query(sql, params, (err: Error, result: eta.QueryResult) => {
+                    done();
+                    callback(err, result);
+                });
+            });
+        };
+
         WebServer.app.use(session({
             "secret": eta.config.http.secret,
             "resave": true,
