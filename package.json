@@ -32,6 +32,15 @@
     "source-map-support": "^0.4.2",
     "stack-trace": "0.0.9"
   },
+  "devDependencies": {
+    "@types/body-parser": "^1.16.3",
+    "@types/chokidar": "^1.6.0",
+    "@types/connect": "^3.4.30",
+    "@types/es6-shim": "^0.31.33",
+    "@types/express-session": "0.0.32",
+    "@types/multer": "0.0.33",
+    "@types/recursive-readdir": "^1.2.28"
+  },
   "engines": {
     "node": ">=4.4.0"
   }

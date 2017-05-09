@@ -11,7 +11,7 @@
   },
   "compileOnSave": true,
   "buildOnSave": false,
-  "exclude": ["node_modules", "typings", "node_modules/eta-lib/typings", "modules"],
+  "exclude": ["node_modules", "typings", "node_modules/eta-lib", "../lib", "node_modules/eta-lib/typings", "modules"],
   "atom": {
     "rewriteTsconfig": false
   }
